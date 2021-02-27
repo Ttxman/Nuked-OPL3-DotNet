@@ -33,11 +33,11 @@
  */
 
 /*
- * Ported to C# by Andrew Moore (bobapplemac)
+ * Ported to C# by Andrew J. Moore (bobapplemac)
  * Updated 2021/02/24
  * C# Version: 1.8.1
  * 
- * NOTE: This code doesn't always seem to output the same byte-level output that the C++ version does
+ * NOTE: This code doesn't always seem to output the same byte-level output that the C version does
  * I'm assuning there's a rounding error somewhere in all of the casting and bit-shifting, but haven't found the exact cause
  * However, it seems to be "close-enough" and I can't tell an audible difference
  */
