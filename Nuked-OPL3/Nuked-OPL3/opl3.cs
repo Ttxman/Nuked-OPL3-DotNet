@@ -563,7 +563,8 @@ namespace Nuked_OPL3
                     }
                     else if ((slot.key != 0) && (shift > 0) && (rate_hi != 0x0f))
                     {
-                        eg_inc = (Int16)(((~slot.eg_rout) << shift) >> 4);
+                        //eg_inc = (Int16)(((~slot.eg_rout) << shift) >> 4);
+                        eg_inc = (Int16)(~slot.eg_rout >> (4 - shift));
                     }
                     break;
                 case envelope_gen_num_decay:
