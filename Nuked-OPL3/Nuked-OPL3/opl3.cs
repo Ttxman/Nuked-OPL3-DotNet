@@ -463,7 +463,7 @@ namespace Nuked_OPL3
             Int16 eg_inc;
             byte eg_off;
             bool reset = false;
-            slot.eg_out = (Int16)(slot.eg_rout + (slot.reg_tl << 2) + (slot.eg_ksl >> kslshift[slot.reg_ksl]) + slot.trem.Value);
+            slot.eg_out = (UInt16)(slot.eg_rout + (slot.reg_tl << 2) + (slot.eg_ksl >> kslshift[slot.reg_ksl]) + slot.trem.Value);
             if ((slot.key != 0) && (slot.eg_gen == envelope_gen_num_release))
             {
                 reset = true;
@@ -584,7 +584,7 @@ namespace Nuked_OPL3
                     }
                     break;
             }
-            slot.eg_rout = (Int16)((eg_rout + eg_inc) & 0x1ff);
+            slot.eg_rout = (UInt16)((eg_rout + eg_inc) & 0x1ff);
             // Key off
             if (reset)
             {
@@ -1472,8 +1472,8 @@ namespace Nuked_OPL3
             public Int16Container fbmod = new Int16Container();
             public Int16Container mod;
             public Int16Container prout = new Int16Container();
-            public Int16 eg_rout;
-            public Int16 eg_out;
+            public UInt16 eg_rout;
+            public UInt16 eg_out;
             public byte eg_inc;
             public byte eg_gen;
             public byte eg_rate;
