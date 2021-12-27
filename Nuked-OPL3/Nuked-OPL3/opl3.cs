@@ -43,8 +43,13 @@
  * However, it seems to be "close-enough" and I can't tell an audible difference
  */
 
+/* Enable Stereo Extensions - disabled by default */
+//#define OPL_ENABLE_STEREOEXT
+
+#if !OPL_ENABLE_STEREOEXT
 /* Quirk: Some FM channels are output one sample later on the left side than the right. */
 #define OPL_QUIRK_CHANNELSAMPLEDELAY
+#endif
 
 using System;
 using System.Collections.Generic;
@@ -56,7 +61,7 @@ namespace Nuked_OPL3
 {
     public class opl3
     {
-        #region Constants
+#region Constants
         const int OPL_WRITEBUF_SIZE = 1024;
         const int OPL_WRITEBUF_DELAY = 2;
 
@@ -201,7 +206,16 @@ namespace Nuked_OPL3
         {
             0, 1, 2, 6, 7, 8, 12, 13, 14, 18, 19, 20, 24, 25, 26, 30, 31, 32
         };
-        #endregion
+
+#if OPL_ENABLE_STEREOEXT
+        /*
+         * stereo extension panning table
+        */
+        static Int32[] panpot_lut = new Int32[256];
+        static bool panpot_lut_build = false;
+#endif
+
+#endregion
 
         private opl3_chip opl;
         public int VolumeBoost
@@ -1045,7 +1059,25 @@ namespace Nuked_OPL3
             {
                 channel.cha = channel.chb = UInt16.MaxValue;
             }
+#if OPL_ENABLE_STEREOEXT
+            if (channel.chip.stereoext == 0)
+            {
+                channel.leftpan = channel.cha << 16;
+                channel.rightpan = channel.chb << 16;
+            }
+#endif
         }
+
+#if OPL_ENABLE_STEREOEXT
+        static void OPL3_ChannelWriteD0(opl3_channel channel, byte data)
+        {
+            if (channel.chip.stereoext != 0)
+            {
+                channel.leftpan = panpot_lut[data ^ 0xff];
+                channel.rightpan = panpot_lut[data];
+            }
+        }
+#endif
 
         static void OPL3_ChannelKeyOn(opl3_channel channel)
         {
@@ -1169,7 +1201,11 @@ namespace Nuked_OPL3
                 {
                     accm += chip.channel[ii].output[jj].Value;
                 }
+#if OPL_ENABLE_STEREOEXT
+                chip.mixbuff[0] += (Int16)((accm * chip.channel[ii].leftpan) >> 16);
+#else
                 chip.mixbuff[0] += (Int16)(accm & chip.channel[ii].cha);
+#endif
             }
 
 #if OPL_QUIRK_CHANNELSAMPLEDELAY
@@ -1196,7 +1232,11 @@ namespace Nuked_OPL3
                 {
                     accm += chip.channel[ii].output[jj].Value;
                 }
+#if OPL_ENABLE_STEREOEXT
+                chip.mixbuff[0] += (Int16)((accm * chip.channel[ii].rightpan) >> 16);
+#else
                 chip.mixbuff[1] += (Int16)(accm & chip.channel[ii].chb);
+#endif
             }
 
 #if OPL_QUIRK_CHANNELSAMPLEDELAY
@@ -1327,6 +1367,10 @@ namespace Nuked_OPL3
                 chip.channel[channum].chtype = ch_2op;
                 chip.channel[channum].cha = 0xffff;
                 chip.channel[channum].chb = 0xffff;
+#if OPL_ENABLE_STEREOEXT
+                chip.channel[channum].leftpan = 0x10000;
+                chip.channel[channum].rightpan = 0x10000;
+#endif
                 chip.channel[channum].ch_num = channum;
                 OPL3_ChannelSetupAlg(chip.channel[channum]);
             }
@@ -1334,6 +1378,19 @@ namespace Nuked_OPL3
             chip.rateratio = (Int32)((samplerate << RSM_FRAC) / 49716);
             chip.tremoloshift = 4;
             chip.vibshift = 1;
+
+#if OPL_ENABLE_STEREOEXT
+            if (!panpot_lut_build)
+            {
+                Int32 i;
+                for (i = 0; i < 256; i++)
+                {
+                    //panpot_lut[i] = (Int32)(sin(i * M_PI / 512.0) * 65536.0);
+                    panpot_lut[i] = (Int32)(Math.Sin(i * Math.PI / 512.0) * 65536.0);
+                }
+                panpot_lut_build = true;
+            }
+#endif
         }
 
         static void OPL3_WriteReg(opl3_chip chip, UInt16 reg, byte v)
@@ -1352,6 +1409,9 @@ namespace Nuked_OPL3
                                 break;
                             case 0x05:
                                 chip.newm = (byte)(v & 0x01);
+#if OPL_ENABLE_STEREOEXT
+                                chip.stereoext = (byte)((v >> 1) & 0x01);
+#endif
                                 break;
                         }
                     }
@@ -1432,6 +1492,14 @@ namespace Nuked_OPL3
                         OPL3_ChannelWriteC0(chip.channel[9 * high + (regm & 0x0f)], v);
                     }
                     break;
+#if OPL_ENABLE_STEREOEXT
+                case 0xd0:
+                    if ((regm & 0x0f) < 9)
+                    {
+                        OPL3_ChannelWriteD0(chip.channel[9 * high + (regm & 0x0f)], v);
+                    }
+                    break;
+#endif
             }
         }
 
@@ -1513,6 +1581,10 @@ namespace Nuked_OPL3
             public opl3_channel pair;
             public opl3_chip chip;
             public Int16Container[] output = new Int16Container[4];
+#if OPL_ENABLE_STEREOEXT
+            public Int32 leftpan;
+            public Int32 rightpan;
+#endif
             public byte chtype;
             public UInt16 f_num;
             public byte block;
@@ -1576,6 +1648,9 @@ namespace Nuked_OPL3
             public byte rm_hh_bit8;
             public byte rm_tc_bit3;
             public byte rm_tc_bit5;
+#if OPL_ENABLE_STEREOEXT
+            public byte stereoext;
+#endif
             //OPL3L
             public Int32 rateratio;
             public Int32 samplecnt;
