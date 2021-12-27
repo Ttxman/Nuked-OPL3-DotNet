@@ -1133,6 +1133,14 @@ namespace Nuked_OPL3
             return (Int16)sample;
         }
 
+        static void OPL3_ProcessSlot(opl3_slot slot)
+        {
+            OPL3_SlotCalcFB(slot);
+            OPL3_EnvelopeCalc(slot);
+            OPL3_PhaseGenerate(slot);
+            OPL3_SlotGenerate(slot);
+        }
+
         static void OPL3_Generate(opl3_chip chip, Int16[] buf)
         {
             byte ii;
@@ -1144,10 +1152,7 @@ namespace Nuked_OPL3
 
             for (ii = 0; ii < 15; ii++)
             {
-                OPL3_SlotCalcFB(chip.slot[ii]);
-                OPL3_EnvelopeCalc(chip.slot[ii]);
-                OPL3_PhaseGenerate(chip.slot[ii]);
-                OPL3_SlotGenerate(chip.slot[ii]);
+                OPL3_ProcessSlot(chip.slot[ii]);
             }
 
             chip.mixbuff[0] = 0;
@@ -1163,20 +1168,14 @@ namespace Nuked_OPL3
 
             for (ii = 15; ii < 18; ii++)
             {
-                OPL3_SlotCalcFB(chip.slot[ii]);
-                OPL3_EnvelopeCalc(chip.slot[ii]);
-                OPL3_PhaseGenerate(chip.slot[ii]);
-                OPL3_SlotGenerate(chip.slot[ii]);
+                OPL3_ProcessSlot(chip.slot[ii]);
             }
 
             buf[0] = OPL3_ClipSample(chip.mixbuff[0], chip.volumeboost);
 
             for (ii = 18; ii < 33; ii++)
             {
-                OPL3_SlotCalcFB(chip.slot[ii]);
-                OPL3_EnvelopeCalc(chip.slot[ii]);
-                OPL3_PhaseGenerate(chip.slot[ii]);
-                OPL3_SlotGenerate(chip.slot[ii]);
+                OPL3_ProcessSlot(chip.slot[ii]);
             }
 
             chip.mixbuff[1] = 0;
@@ -1192,10 +1191,7 @@ namespace Nuked_OPL3
 
             for (ii = 33; ii < 36; ii++)
             {
-                OPL3_SlotCalcFB(chip.slot[ii]);
-                OPL3_EnvelopeCalc(chip.slot[ii]);
-                OPL3_PhaseGenerate(chip.slot[ii]);
-                OPL3_SlotGenerate(chip.slot[ii]);
+                OPL3_ProcessSlot(chip.slot[ii]);
             }
 
             if ((chip.timer & 0x3f) == 0x3f)
