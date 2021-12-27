@@ -3,11 +3,21 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Nuked_OPL3</RootNamespace>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/bobapplemac/Nuked-OPL3-DotNet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/bobapplemac/Nuked-OPL3-DotNet</RepositoryUrl>
+    <AssemblyVersion>1.8.1.0</AssemblyVersion>
+    <FileVersion>1.8.1.0</FileVersion>
+    <Copyright>2013-2020 Nuke.YKT; 2020-2021 Andrew J. Moore</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
     <None Update="LICENSE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 

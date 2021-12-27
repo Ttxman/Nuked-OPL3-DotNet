@@ -36,6 +36,7 @@
  * Ported to C# by Andrew J. Moore (bobapplemac)
  * Updated 2021/02/24
  * C# Version: 1.8.1
+ * Copyright (C) 2020-2021 Andrew J. Moore
  * 
  * NOTE: This code doesn't always seem to output the same byte-level output that the C version does
  * I'm assuning there's a rounding error somewhere in all of the casting and bit-shifting, but haven't found the exact cause
