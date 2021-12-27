@@ -43,6 +43,8 @@
  * However, it seems to be "close-enough" and I can't tell an audible difference
  */
 
+/* Quirk: Some FM channels are output one sample later on the left side than the right. */
+#define OPL_QUIRK_CHANNELSAMPLEDELAY
 
 using System;
 using System.Collections.Generic;
@@ -1150,7 +1152,11 @@ namespace Nuked_OPL3
 
             buf[1] = OPL3_ClipSample(chip.mixbuff[1], chip.volumeboost);
 
+#if OPL_QUIRK_CHANNELSAMPLEDELAY
             for (ii = 0; ii < 15; ii++)
+#else
+            for (ii = 0; ii < 36; ii++)
+#endif
             {
                 OPL3_ProcessSlot(chip.slot[ii]);
             }
@@ -1166,17 +1172,21 @@ namespace Nuked_OPL3
                 chip.mixbuff[0] += (Int16)(accm & chip.channel[ii].cha);
             }
 
+#if OPL_QUIRK_CHANNELSAMPLEDELAY
             for (ii = 15; ii < 18; ii++)
             {
                 OPL3_ProcessSlot(chip.slot[ii]);
             }
+#endif
 
             buf[0] = OPL3_ClipSample(chip.mixbuff[0], chip.volumeboost);
 
+#if OPL_QUIRK_CHANNELSAMPLEDELAY
             for (ii = 18; ii < 33; ii++)
             {
                 OPL3_ProcessSlot(chip.slot[ii]);
             }
+#endif
 
             chip.mixbuff[1] = 0;
             for (ii = 0; ii < 18; ii++)
@@ -1189,10 +1199,12 @@ namespace Nuked_OPL3
                 chip.mixbuff[1] += (Int16)(accm & chip.channel[ii].chb);
             }
 
+#if OPL_QUIRK_CHANNELSAMPLEDELAY
             for (ii = 33; ii < 36; ii++)
             {
                 OPL3_ProcessSlot(chip.slot[ii]);
             }
+#endif
 
             if ((chip.timer & 0x3f) == 0x3f)
             {
