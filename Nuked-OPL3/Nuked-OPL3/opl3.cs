@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-License-Identifier: LGPL-2.1-or-later
 
 /* Nuked OPL3
  * Copyright (C) 2013-2020 Nuke.YKT
@@ -277,7 +277,7 @@ namespace Nuked_OPL3
             OPL3_WriteRegBuffered(opl, register, value);
         }
 
-        public void OPL3_GenerateStream(Int16[] sndbuffer, UInt32 numsamples)
+        public void OPL3_GenerateStream(Span<Int16> sndbuffer, UInt32 numsamples)
         {
             OPL3_GenerateStream(opl, sndbuffer, numsamples);
         }
@@ -1313,7 +1313,7 @@ namespace Nuked_OPL3
             chip.writebuf_samplecnt++;
         }
 
-        static void OPL3_GenerateResampled(opl3_chip chip, Int16[] buf, int index)
+        static void OPL3_GenerateResampled(opl3_chip chip, Span<Int16> buf, int index)
         {
             while (chip.samplecnt >= chip.rateratio)
             {
@@ -1530,7 +1530,7 @@ namespace Nuked_OPL3
             chip.writebuf_last = (chip.writebuf_last + 1) % OPL_WRITEBUF_SIZE;
         }
 
-        static void OPL3_GenerateStream(opl3_chip chip, Int16[] sndbuffer, UInt32 numsamples)
+        static void OPL3_GenerateStream(opl3_chip chip, Span<Int16> sndbuffer, UInt32 numsamples)
         {
             UInt32 i;
             int sndptr = 0;
